@@ -1,0 +1,56 @@
+name: Validate skills
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "skills/**"
+      - ".agent-lint.yaml"
+      - ".agent-lint-ignore.yaml"
+      - ".github/workflows/validate-skills.yml"
+  pull_request:
+    paths:
+      - "skills/**"
+      - ".agent-lint.yaml"
+      - ".agent-lint-ignore.yaml"
+      - ".github/workflows/validate-skills.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # Pinned agent-lint release for reproducible CI.
+  # Bump this (and re-verify the checksum below) to upgrade.
+  AGENT_LINT_VERSION: "0.1.1"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install agent-lint (pinned release binary, checksum-verified)
+        run: |
+          set -euo pipefail
+          version="${AGENT_LINT_VERSION}"
+          archive="agent-lint_${version}_linux_amd64.tar.gz"
+          base="https://github.com/ai-agent-manager/agent-lint/releases/download/v${version}"
+
+          curl -fsSL -O "${base}/${archive}"
+          curl -fsSL -O "${base}/checksums.txt"
+
+          # Verify the downloaded archive against the release checksums.
+          grep " ${archive}\$" checksums.txt | sha256sum -c -
+
+          tar -xzf "${archive}"
+          install -m 0755 agent-lint /usr/local/bin/agent-lint
+          agent-lint --version
+
+      - name: Lint skills
+        run: |
+          agent-lint check \
+            --root skills \
+            --ignore-file .agent-lint-ignore.yaml \
+            --strict
