@@ -97,6 +97,30 @@ this repository.
 > [!TIP]
 > See the [Agent Skills specification](https://agentskills.io/specification) for full details.
 
+### Validating skills
+
+Skills are linted against the [agentskills.io specification](https://agentskills.io/specification)
+with [`agent-lint`](https://github.com/ai-agent-manager/agent-lint). Install it and run the
+check locally:
+
+```bash
+brew install ai-agent-manager/tap/agent-lint
+agent-lint check --root skills --ignore-file .agent-lint-ignore.yaml --strict
+```
+
+This validates each `skills/<skill-name>/SKILL.md` — required frontmatter, naming rules,
+body size caps (500 lines / 5000 tokens), and relative references. `--strict` treats
+warnings as errors.
+
+The same check runs in CI on every push and pull request that touches `skills/` via
+[`.github/workflows/validate-skills.yml`](.github/workflows/validate-skills.yml), which
+pins a checksum-verified `agent-lint` release binary.
+
+Deliberate or false-positive findings can be suppressed in
+[`.agent-lint-ignore.yaml`](.agent-lint-ignore.yaml) — keep each ignore narrow and
+commented. Run `agent-lint list-rules` for the stable rule IDs. All skills currently pass
+with no findings, so the ignore file is empty.
+
 ---
 
 ## Developing and testing the discovery document

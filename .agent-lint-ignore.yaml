@@ -1,0 +1,24 @@
+# agent-lint ignore file
+#
+# Suppress specific, deliberate, or false-positive findings from agent-lint.
+# Prefer FIXING the skill over ignoring. Keep every ignore narrow and commented
+# with the reason it exists; broad `skills/**` ignores are migration debt.
+#
+# Format (see https://github.com/ai-agent-manager/agent-lint/blob/main/docs/ignore.md):
+#
+#   ignores:
+#     # Empty `rules` list suppresses ALL findings under this path.
+#     - path: skills/legacy-migration/**
+#       rules: []
+#
+#     # Suppress only named rule IDs for a specific file.
+#     - path: skills/big-skill/SKILL.md
+#       rules:
+#         - skill/body-line-limit
+#         - skill/body-token-limit
+#
+# Run `agent-lint list-rules` for the current, stable rule IDs.
+#
+# As of the last local run, all skills pass with zero errors and zero warnings
+# (including `--strict`), so there are no findings to ignore.
+ignores: []
