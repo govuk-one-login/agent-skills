@@ -22,7 +22,7 @@ permissions:
 env:
   # Pinned agent-lint release for reproducible CI.
   # Bump this (and re-verify the checksum below) to upgrade.
-  AGENT_LINT_VERSION: "0.1.1"
+  AGENT_LINT_VERSION: "0.3.0"
 
 jobs:
   validate:
@@ -52,5 +52,6 @@ jobs:
         run: |
           agent-lint check \
             --root skills \
+            --config .agent-lint.yaml \
             --ignore-file .agent-lint-ignore.yaml \
             --strict
