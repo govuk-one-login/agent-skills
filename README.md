@@ -1,5 +1,8 @@
 # agent-skills
 
+[![Validate skills](https://github.com/govuk-one-login/agent-skills/actions/workflows/validate-skills.yml/badge.svg?branch=main)](https://github.com/govuk-one-login/agent-skills/actions/workflows/validate-skills.yml)
+[![Validate discovery document](https://github.com/govuk-one-login/agent-skills/actions/workflows/validate-discovery.yml/badge.svg?branch=main)](https://github.com/govuk-one-login/agent-skills/actions/workflows/validate-discovery.yml)
+
 Shared Agent Skill configuration and assets.
 
 This repository publishes an [Agent Manager](https://github.com/ai-agent-manager/agent-manager)
@@ -105,12 +108,13 @@ check locally:
 
 ```bash
 brew install ai-agent-manager/tap/agent-lint
-agent-lint check --root skills --ignore-file .agent-lint-ignore.yaml --strict
+agent-lint check --root skills --config .agent-lint.yaml --ignore-file .agent-lint-ignore.yaml --strict
 ```
 
 This validates each `skills/<skill-name>/SKILL.md` — required frontmatter, naming rules,
 body size caps (500 lines / 5000 tokens), and relative references. `--strict` treats
-warnings as errors.
+warnings as errors. Linting behaviour (body-size caps, frontmatter constraints, README
+requirements) is configured in [`.agent-lint.yaml`](.agent-lint.yaml).
 
 The same check runs in CI on every push and pull request that touches `skills/` via
 [`.github/workflows/validate-skills.yml`](.github/workflows/validate-skills.yml), which

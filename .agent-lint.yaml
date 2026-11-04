@@ -1,0 +1,37 @@
+# agent-lint configuration
+#
+# Validates skills under `skills/` against the agentskills.io specification.
+# Schema reference (agent-lint v0.3.0):
+#   https://github.com/ai-agent-manager/agent-lint/blob/v0.3.0/docs/configuration.md
+#
+# Run locally:
+#   agent-lint check --root skills --config .agent-lint.yaml \
+#     --ignore-file .agent-lint-ignore.yaml --strict
+#
+# Keep constraints aligned with what our skills actually use. Adding a
+# constraint that a skill does not satisfy will fail CI, so only tighten these
+# once every skill conforms.
+
+skills:
+  # Body-size caps are agentskills.io recommendations; agent-lint enforces them
+  # as errors. These match the tool defaults — pinned here for visibility.
+  max_body_lines: 500
+  max_body_tokens: 5000
+
+  # We publish skills in the Claude Code marketplace layout but do NOT ship a
+  # per-skill README.md, so README checks stay off.
+  require_readme: false
+
+  # Only agentskills.io frontmatter fields are permitted. Our skills use
+  # `name`, `description`, and an optional `metadata` block (author/version),
+  # all of which are on-spec, so no Claude Code carve-out is needed.
+  allow_claude_code_fields: false
+
+  # SKILL.md frontmatter constraints (string operators only).
+  # NOTE: `metadata.author`/`metadata.version` are intentionally NOT required —
+  # `incremental-commits` and `mocks` have no `metadata` block yet. Add a
+  # `metadata.author` constraint here once all skills carry one.
+  skill_constraints:
+    # Every skill must describe itself; guard against an empty description.
+    - field: description
+      not_equals: ""
