@@ -56,13 +56,13 @@ a rule's application is non-obvious or you need to justify a decision to a revie
 
 ## Variables & scope
 
-- Declare at the smallest possible scope; minimise variables in scope.
+- Declare variables at the smallest possible scope; minimise variables in scope.
 - Compute or check variables close to use; don't introduce them early or leave them around.
 - Don't duplicate variables or create extra references to them.
 
 ## Functions
 
-- Keep each function under ~70 lines.
+- Keep functions short.
 - Inverse-hourglass shape: few parameters, a simple return type, the substance in the body.
 - Push `if`s up, push `for`s down — branching in the parent, pure leaf helpers.
 - Re-validate preconditions after every `await`; it is a suspension point where state may go stale.
@@ -77,8 +77,6 @@ a rule's application is non-obvious or you need to justify a decision to a revie
 - Prefer nouns for identifiers reused in docs or conversation.
 - Don't abbreviate, except very short-lived variables such as callback parameters.
 - Append units and qualifiers last, most significant first (`latencyMsMax`).
-- Match the length of related names so they align (`source`/`target`).
-- Prefix a helper with its caller's name (`readSector` / `readSectorCallback`).
 - Use long-form flags in scripts (`--force`, not `-f`).
 
 ## Module & file layout
@@ -89,40 +87,35 @@ a rule's application is non-obvious or you need to justify a decision to a revie
 - Extract complex inline or nested types into named top-level `type`/`interface`.
 - Sort alphabetically when no order is inherent (imports, keys, union members); use big-endian names.
 
-## Off-by-one
-
-- Treat `index`, `count`, and `size` as distinct: `count = index + 1`, `size = count * unit`.
-- Make rounding explicit with `Math.floor` / `Math.ceil`.
-
 ## Comments
 
 - Explain why, not what.
-- Precede a test with a comment stating its goal and method.
-- Comments are full sentences; a trailing inline comment may be an unpunctuated phrase.
-- Write descriptive commit messages — a PR description is not a substitute.
+- Give tests clear, concise, complete names.
+- Comments should be well written; a trailing inline comment may be an unpunctuated phrase.
+- Write descriptive commit messages which explain why the changes in the commit were made.
 
 ## Testing
 
-- Test with valid data, invalid data, and across the valid→invalid transition.
+- Test exhaustively with valid data and invalid data.
 - Test error and failure paths explicitly.
-- Never monkey-patch; inject dependencies instead.
+- Never monkey-patch; inject dependencies explicitly instead.
 - Make each test understandable in isolation: clear name, self-contained arrange/act/assert,
   specific assertions.
 - Target 100% coverage; mark gaps with a justified ignore pragma from the agreed list.
 
 ## Performance
 
-- Get data shape, access patterns, and boundaries right at design time, then measure.
-- Optimise I/O before CPU.
+- Try to get data structures, access patterns, compute, and related infrastructure right at design
+  time.
 - Batch I/O; never issue requests one at a time in a loop; use `Promise.all` for independent work.
-- Never block the event loop; offload CPU-heavy work to worker threads.
+- Don't block the event loop; offload CPU-heavy work to worker threads.
 - Bound concurrency; never run an unbounded `Promise.all` over a large array.
-- Measure whole user-facing operations, not micro-benchmarks.
+- Measure the performance of whole operations.
 
 ## Tooling & dependencies
 
 - Enable `strict`; treat compiler and lint warnings as build-failing errors.
 - Run the formatter on every change.
-- 2-space indentation; 100-column line limit, enforced via config.
+- Cap line-length to ~100 characters and automatically enforce.
 - Minimise external dependencies.
 - Write scripts and automation in TypeScript.

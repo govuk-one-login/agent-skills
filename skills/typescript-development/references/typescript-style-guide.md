@@ -5,27 +5,14 @@ rationale ("why") and worked examples behind every rule. `SKILL.md` is the terse
 apply on every change; come here when a rule's application is non-obvious, when two rules appear
 to conflict, or when you need the reasoning to justify a decision to a reviewer.
 
-It is strongly opinionated and inspired by and adapted from 
+It is strongly opinionated and inspired by 
 [TigerStyle](https://github.com/tigerbeetle/tigerbeetle/blob/main/docs/TIGER_STYLE.md),
 TigerBeetle's coding style guide.
-
-## Design Philosophy
-
-- Design goals are safety, performance, and developer experience. All three matter, and safety
-  contributes strongly to developer experience.
-- Style is more than readability. Readability is a means to an end, not the end itself.
-- Spend mental energy upfront, proactively rather than reactively — effort spent on design is
-  dwarfed by the cost of implementation, testing, operation, and maintenance.
-- An hour or a day of design can be worth weeks or months in production.
 
 ## Technical Debt
 
 - Default to zero technical debt. As much as you can, do it right the first time.
-- When you discover showstoppers, solve them. Don't let exponential-complexity algorithms or known
-  performance hazards slip through.
-- What you ship should be solid. You may lack features, but what you have meets your design goals.
-  This is the only way to make sustainable progress.
-- From day one, treat compiler and linter warnings at the strictest setting as errors — enable
+- From the start, treat compiler and linter warnings at the strictest setting as errors — enable
   `strict` in `tsconfig.json` and fail the build on lint warnings.
 
 ## Types & Assertions
@@ -177,15 +164,8 @@ Use the type system to make invalid states unrepresentable.
 - **Put a fixed upper bound on every loop and queue** to prevent infinite loops and unbounded
   latency (the fail-fast principle). Where a loop is intended never to terminate (e.g. an event
   loop), assert that intent explicitly.
-- **Split compound boolean conditions** into simple conditions using nested `if/else` branches, and
-  convert long `else if` chains into `else { if {} }` trees, so every branch and case is visible.
-- When you write an `if`, **consider whether it needs a matching `else`** so that both the positive
-  and negative case are handled or asserted.
-- **State invariants positively** rather than as negations. Prefer `if (index < length)` over
-  `if (index >= length)` — the former is easier to get right and to read.
-- **Do not act directly in reaction to external events.** Let the program run at its own pace and
-  batch work rather than context-switching on every event; this keeps control flow under your
-  control.
+- **State logical operators positively** rather than as negations. Prefer `if (index < length)`
+  over `if (index >= length)` — the former is easier to get right and to read.
 - **Pass options explicitly at the call site** rather than relying on a function's defaults, so
   behaviour does not change silently if those defaults change.
 - **Add braces to every `if`** except when the whole statement fits on one line — for consistency
@@ -193,8 +173,7 @@ Use the type system to make invalid states unrepresentable.
 
 ## Variables & Scope
 
-- Declare variables at the smallest possible scope, and minimise the number of variables in scope,
-  to reduce the probability that the wrong variable is used.
+- Declare variables at the smallest possible scope, and minimise the number of variables in scope.
 - Calculate or check variables close to where they are used. Don't introduce a variable before it
   is needed, and don't leave it around after.
 - Don't duplicate variables or create additional references to them — this reduces the probability
@@ -202,8 +181,7 @@ Use the type system to make invalid states unrepresentable.
 
 ## Functions
 
-- **Keep each function under ~70 lines** — short enough to read without scrolling. There is a sharp
-  discontinuity between a function that fits on a screen and one you must scroll through.
+- **Keep each function short** — ~70 lines is short enough to read without scrolling.
 - **Aim for the inverse-hourglass shape**: few parameters, a simple return type, and the substance
   in the body.
 - **Push `if`s up, push `for`s down**: keep branching (`if`/`switch`) in the parent function and
@@ -235,21 +213,18 @@ Use the type system to make invalid states unrepresentable.
 
 ## Naming
 
-- **Get the nouns and verbs just right.** Great names capture what a thing is or does and provide a
-  crisp, intuitive mental model; they show you understand the domain.
+- **Get the nouns and verbs right.** Accurate precise names capture what an object is or what a 
+  function does and provide a useful and intuitive mental model.
 - **Infuse names with meaning.** Specific names that convey behaviour or lifecycle beat generic
   ones (`retryBudget`/`connectionPool` over a bare `manager`; `activeConnection` over `conn2`).
-- **Don't overload a name** with different meanings in different contexts.
-- **Prefer nouns** for identifiers reused in docs or conversation: `session.expiry` reads better
-  than `session.expiring`, and composes into `expiryMsMax`.
+- **Don't overload a name** with different meanings in different contexts, to keep the code easy to
+  navigate and talk about.
+- **Prefer nouns** for identifiers: `session.expiry` reads better than `session.expiring`, and
+  composes into `expiryMsMax`.
 - **Do not abbreviate names**, except for ephemeral variables with a very short lifespan such as a
   callback parameter (`items.map((u) => u.id)`).
 - **Append units and qualifiers to names, most significant first**, so related variables align:
   `latencyMsMax`, not `maxLatencyMs`.
-- **Match the length of related names** so they line up in source: `source`/`target` over
-  `src`/`dest`, so `sourceOffset` and `targetOffset` align in calculations.
-- **Prefix a helper with the name of its caller** to show the call history: `readSector` and
-  `readSectorCallback`.
 - **Use long-form flags in scripts** (`--force`, not `-f`); single-letter flags are for interactive
   use only.
 
@@ -266,63 +241,54 @@ Use the type system to make invalid states unrepresentable.
 - When no order is inherent, sort alphabetically (import groups, object keys, union members), using
   "big-endian" naming so shared prefixes cluster together.
 
-## Off-By-One Errors
-
-- The usual suspects are casual interactions between an `index`, a `count`, and a `size`. Treat
-  them as distinct concepts with clear conversions: `count = index + 1` (indexes are 0-based,
-  counts 1-based), and `size = count * unit`. This is why units and qualifiers in names matter.
-- Make rounding intent explicit with `Math.floor` / `Math.ceil`; never rely on implicit truncation.
-
 ## Comments & Documentation
 
 - **Always say why.** The code already shows what it does; use comments and commit messages to 
   justify why it is written that way. Explaining the rationale increases understanding, makes people
   more likely to adhere, and shares the criteria by which to evaluate the decision.
-- **Don't forget to say how.** Precede a test with a short comment stating its goal and method, so a
-  reader can get up to speed or skip it.
-- **Comments are sentences**: a space after `//`, a capital letter, and a full stop (or a colon if
-  they introduce what follows). They are well-written prose, not scribblings in the margin. A
-  trailing inline comment may be a phrase without punctuation.
-- **Write descriptive commit messages.** A PR description is not stored in the repository and is
-  invisible in `git blame` — it is not a substitute for a commit message.
+- **Describe tests well.** Test names should be concise, clear, and complete, to give the best 
+  chance to the next person who breaks it.
+- **Write comments well**: Use a space after `//`, a capital letter, and a full stop (or a colon if
+  they introduce what follows). A trailing inline comment may be a phrase without punctuation.
+- **Write descriptive commit messages.** Git commits are a powerful way to document the code and 
+  expose the context and reasoning behind it.
 
 ## Testing
 
-- **Test exhaustively**: with valid data, with invalid data, and across the transition as valid data
-  becomes invalid.
-- **Test error and failure paths explicitly.** Simple tests of failure paths prevent the majority of
-  catastrophic failures.
+- **Test exhaustively**: with valid data and with invalid data.
+- **Test error and failure paths explicitly.** Simple tests of failure paths can prevent 
+catastrophic failures.
 - **Never monkey-patch** modules, globals, or object prototypes to make code testable — it couples
-  tests to internals and hides integration problems. Instead, inject dependencies so a test can
-  supply its own implementation without rewriting the code under test at runtime.
+  tests to internals and hides integration problems. Instead, inject dependencies explicitly so a 
+  test can supply its own implementation without rewriting the code under test at runtime.
 - **Make each test understandable on its own** for whoever it fails for: a clear name, self-contained
   arrange/act/assert, and specific assertion messages, so a failure is intelligible without
   reverse-engineering shared fixtures or other tests.
 - **Target 100% coverage.** Mark any uncovered line with an ignore pragma carrying a justification
-  from an agreed, finite list, so a coverage gap is always a deliberate, reviewable decision.
+  from an agreed finite list, so a coverage gap is always a deliberate, recorded decision.
 
   ```ts
-  /* v8 ignore next 3 -- defensive: unreachable, guarded by the assertion above */
+  /* v8 ignore -- unreachable, guarded by the assertion above */
   ```
 
-  Examples of valid justifications:
-  - an unreachable defensive branch paired with a throw;
+  Examples of good justifications:
   - platform- or environment-specific code that cannot run under test;
+  - trivial code, like a null no-op implementation of an interface;
   - third-party or generated code the team has chosen not to test directly.
 
 ## Performance
 
-- **Design for it first.** The biggest wins come from the design phase — the shape of your data,
-  your access patterns, your boundaries — precisely when you can't yet measure. Get the shape right
-  first, then measure.
+- **Consider how the system performs as a whole.** Consider performance in the design phase — the 
+  shape of the data, the access patterns, how it's processed, and the associated infrastructure.
 - **Optimise I/O before CPU.** I/O (database round-trips, HTTP calls, disk) is almost always the
   slowest resource, and a single mis-shaped query dwarfs any in-process cleverness.
 - **Amortise I/O by batching.** Never issue requests one at a time in a loop. Use bulk queries and
   run independent async work with `Promise.all`.
-- **Never block the event loop**; it is a single lane shared by every concurrent request. Chunk or
+- **Don't block the event loop**; it is a single lane shared by every concurrent request. Chunk or
   offload CPU-heavy work to worker threads.
 - **Bound concurrency**, just as you bound everything else. An unbounded `Promise.all` over a large
-  array will exhaust connections, memory, or rate limits.
+  array will exhaust connections, memory, or rate limits. For example, using 
+  [p-limit](https://www.npmjs.com/package/p-limit):
 
   ```ts
   import pLimit from "p-limit";
@@ -330,9 +296,8 @@ Use the type system to make invalid states unrepresentable.
   await Promise.all(items.map((it) => limit(() => process(it))));
   ```
 
-- **Measure what matters to your domain.** Track the latency of whole user-facing operations
-  (checkout, search, page load), not isolated micro-benchmarks; a function that is fast alone can
-  still make the journey slow.
+- **Measure what matters to your domain.** Track the latency of whole operations; a function that is
+  fast in isolation can still make a journey slow.
 
 ## Tooling & Dependencies
 
@@ -341,13 +306,10 @@ Use the type system to make invalid states unrepresentable.
 - Run the formatter (Prettier / `eslint --fix`) on every change.
 - Indent with 2 spaces — visually distinct without eating into the line-length budget in deeply
   nested blocks.
-- Cap line length at 100 columns — just enough to fit two copies side-by-side — enforced via
-  `printWidth` / `max-len` rather than by eye.
-- **Minimise external dependencies.** Each is a supply-chain, safety, and performance risk, and the
-  cost compounds in foundational code.
+- Cap line length at ~100 characters to make it easy to fit two copies side-by-side. Enforce this 
+  automatically using a formatter.
+- **Minimise external dependencies.** Every dependency is a supply-chain, safety, and performance
+  risk.
 - **Standardise on TypeScript for tooling** (scripts, automation) rather than shell scripts, so they
-  are cross-platform, portable, and type-safe. Standardising on one language reduces dimensionality
-  as the team grows: slower for you short term, more velocity long term.
-- Tools have costs. A small standardised toolbox is simpler to operate than an array of specialised
-  instruments each with its own manual — the right tool for the job is often the one you already
-  use.
+  are type-safe and more reliably comprehensible for developers working with the code, and 
+  easier to productionise in the future.
